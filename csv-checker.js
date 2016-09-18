@@ -1,7 +1,10 @@
 'use strict';
 
-const fs = require('fs');
-var Papa = require('papaparse');
+var fs = require('fs');
+var papa = require('papaparse');
+var detectCharacterEncoding = require('detect-character-encoding');
+var ProgressBar = require('progress');
+var chalk = require('chalk');
 
 var globalConfig = {
     delimiter: ",", // auto-detect
@@ -15,7 +18,7 @@ var globalConfig = {
     step: undefined,
     complete: function(results, file) {
         for (let error of results.errors) {
-            console.error(`${error.row + 1}#${error.message}`);
+            console.error(chalk.red(`Row:${error.row + 1}#${error.message}`));
         }
     },
     error: undefined,
@@ -34,20 +37,37 @@ fs.readdir('./csv', function(err, files) {
         });
 
         if (files.length == 0) {
-            console.log('No files to parse');
+            console.log(chalk.red('No files to parse'));
             process.exit(0);
         }
 
-        for (let file of files) {
-            console.log(`Parsing ${file}...`);
+        var bar = new ProgressBar(chalk.green('Parsing [:bar] :percent\n'), {
+            total: files.length,
+            width: 20
+        });
 
-            fs.readFile("./csv/" + file, "utf-8", (err, data) => {
-                if (err) throw err;
-                Papa.parse(data, globalConfig);
-                console.log(`Parsing ${file} complete`);
-            });
+        var timer = setInterval(function() {
+            for (let file of files) {
+                console.log(chalk.blue(`Parsing ${file}`));
 
-        }
+                var fileBuffer = fs.readFileSync("./csv/" + file);
+                var charsetMatch = detectCharacterEncoding(fileBuffer);
+
+                if (charsetMatch.encoding !== "UTF-8") {
+                    console.error(chalk.red(`${file} is not in UTF-8`));
+                    process.exit(0);
+                }
+
+                papa.parse(fileBuffer.toString(), globalConfig);
+                console.log(chalk.blue(`Parsing ${file} complete`));
+
+                bar.tick();
+
+                if (bar.complete) {
+                    clearInterval(timer);
+                }
+            }
+        }, 100);
 
     } else
         throw err;
