@@ -6,12 +6,21 @@
   "dependencies": {
     "chalk": "^1.1.3",
     "detect-character-encoding": "^0.2.1",
-    "papaparse": "^4.1.2"
+    "papaparse": "^4.1.2",
+    "progress": "^1.1.8"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anirudhgali/csvlint-nodejs.git"
+  },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anirudhgali/csvlint-nodejs/issues"
+  },
+  "homepage": "https://github.com/anirudhgali/csvlint-nodejs#readme"
 }
